@@ -4,8 +4,10 @@
 
 # the logging things
 import logging
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 LOGGER = logging.getLogger(__name__)
 
 import asyncio
@@ -24,7 +26,6 @@ from tobrot import (
 import pyrogram
 logging.getLogger("pyrogram").setLevel(logging.WARNING)
 
-from tobrot.helper_funcs.extract_link_from_message import extract_link
 from tobrot.helper_funcs.upload_to_tg import upload_to_tg
 
 
@@ -36,14 +37,7 @@ async def youtube_dl_call_back(bot, update):
     #
     current_user_id = update.message.reply_to_message.from_user.id
     current_touched_user_id = update.from_user.id
-    if current_user_id != current_touched_user_id:
-        await bot.answer_callback_query(
-            callback_query_id=update.id,
-            text="who are you? 🤪🤔🤔🤔",
-            show_alert=True,
-            cache_time=0
-        )
-        return False, None
+
     user_working_dir = os.path.join(DOWNLOAD_LOCATION, str(current_user_id))
     # create download directory, if not exist
     if not os.path.isdir(user_working_dir):
@@ -83,17 +77,6 @@ async def youtube_dl_call_back(bot, update):
     custom_file_name = "%(title)s.%(ext)s"
     # https://superuser.com/a/994060
     LOGGER.info(custom_file_name)
-    #
-    if "noyes.in" in youtube_dl_url or "tor.checker.in" in youtube_dl_url or "workers.dev" in youtube_dl_url:
-        await update.message.edit_caption(
-            caption="😡😡 <i>please do not abuse this <u>FREE</u> service</i> 🌚"
-        )
-        return
-    if "drive.google.com" in youtube_dl_url and youtube_dl_format != "source":
-        await update.message.edit_caption(
-            caption="<i>please do not abuse this <u>FREE</u> service</i>"
-        )
-        return
     #
     await update.message.edit_caption(
         caption="trying to download"
@@ -190,7 +173,8 @@ async def youtube_dl_call_back(bot, update):
             update.message,
             tmp_directory_for_each_user,
             user_id,
-            {}
+            {},
+            True
         )
         LOGGER.info(final_response)
         #
