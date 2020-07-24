@@ -92,7 +92,7 @@ def add_magnet(aria_instance, magnetic_link, c_file_name):
 
 def add_torrent(aria_instance, torrent_file_path):
     if torrent_file_path is None:
-        return False, "**FAILED** \n" + str(e) + " \nsomething wrongings when trying to add <u>TORRENT</u> file"
+        return False, "**FAILED** \n\nsomething wrongings when trying to add <u>TORRENT</u> file"
     if os.path.exists(torrent_file_path):
         # Add Torrent Into Queue
         try:
@@ -300,7 +300,7 @@ async def check_progress_for_dl(aria2, gid, event, previous_message):
                 except:
                     pass
                 #
-                msg = f"\nDownloading File: `{downloading_dir_name}`"
+                msg = f"\nDownloading File: <code>{downloading_dir_name}</code>"
                 msg += f"\nSpeed: {file.download_speed_string()} 🔽 / {file.upload_speed_string()} 🔼"
                 msg += f"\nProgress: {file.progress_string()}"
                 msg += f"\nTotal Size: {file.total_length_string()}"
@@ -324,20 +324,20 @@ async def check_progress_for_dl(aria2, gid, event, previous_message):
             await asyncio.sleep(EDIT_SLEEP_TIME_OUT)
             await check_progress_for_dl(aria2, gid, event, previous_message)
         else:
-            await event.edit(f"File Downloaded Successfully: `{file.name}`")
+            await event.edit(f"File Downloaded Successfully: <code>{file.name}</code>")
             return True
     except Exception as e:
         LOGGER.info(str(e))
         if " not found" in str(e) or "'file'" in str(e):
-            await event.edit("Download Canceled :\n`{}`".format(file.name))
+            await event.edit("Download Canceled :\n<code>{}</code>".format(file.name))
             return False
         elif " depth exceeded" in str(e):
             file.remove(force=True)
-            await event.edit("Download Auto Canceled :\n`{}`\nYour Torrent/Link is Dead.".format(file.name))
+            await event.edit("Download Auto Canceled :\n<code>{}</code>\nYour Torrent/Link is Dead.".format(file.name))
             return False
         else:
             LOGGER.info(str(e))
-            await event.edit("<u>error</u> :\n`{}` \n\n#error".format(str(e)))
+            await event.edit("<u>error</u> :\n<code>{}</code> \n\n#error".format(str(e)))
             return
 # https://github.com/jaskaranSM/UniBorg/blob/6d35cf452bce1204613929d4da7530058785b6b1/stdplugins/aria.py#L136-L164
 
