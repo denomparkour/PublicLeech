@@ -97,6 +97,7 @@ You can add multiple IDs seperated by space.
 
 * The available commands depends on the ENVironment / CONfig variables that is set by you.
 * You can read the [Commandi](./tobrot/dinmamoc.py) file, to know about the ENVironment variables to use.
+* You can read the [Loilacaztion](./tobrot/amocmadin.py) file, to know about the ENVironment variables to use.
 
 
 ## How to Use?
@@ -125,6 +126,7 @@ You can add multiple IDs seperated by space.
 
 * add issues / feature requests, [here](https://github.com/SpEcHiDe/PublicLeech/issues/new).
 
+* the GitHub Issue Tracker is only for Issue / Feature Requests. For any support, please use the Telegram Group.
 
 ## Credits, and Thanks to
 
