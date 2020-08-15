@@ -76,6 +76,8 @@ You can add multiple IDs seperated by space.
 * `R_CLONE_CONF_URI`:
 ![a help, maybe](https://telegra.ph/file/073bcbc0b69b03d75ea04.jpg)
 
+* `R_CLONE_DEST`: Destination folder for rclone copying. Set your path starting with '/'. Or just leave '/' to set root folder
+
 * `DOWNLOAD_LOCATION`: optional download directory, where the temporary downloads should ideally reside.
 
 * `MAX_FILE_SIZE`: The maximum file_size allowed by Telegram [BOT API](https://core.telegram.org/bots/api), kept for [legacy purposes](https://t.me/c/1235155926/33801).
@@ -105,19 +107,14 @@ You can add multiple IDs seperated by space.
 * send any link, and click on the available buttons.
   - due to ~~Telegram~~ limitations, the buttons will only work, if the bot was created by you, or you are in the same region as the Telegram bot creator.
 
+* if you have disabled `SHOULD_USE_BUTTONS`, you can read the [Commandi](./tobrot/dinmamoc.py) file, to know about the commands.
+  - [COMMANDI_LEECH](./tobrot/dinmamoc.py#L23) can take multiple arguments
+    * `archive`: if you want a `.tar.gz` file, in your Telegram Chat.
+    * `leech_rc_0`: if you want to mirror to an rClone supported host, `0` is an example, and should be replaced with the index of your required host, in your uploaded `rclone.conf` file.
+
 * if file is larger than `TG_MAX_FILE_SIZE`, [read this](https://t.me/c/1434259219/113).
 
 * if file is a TAR archive, [read this](https://t.me/c/1434259219/104) to know how to uncompress.
-
-
-## How to get `R_CLONE_CONF_URI` ?
-
-- Start the RoBot by leaving the var empty.
-- Create a rclone.conf by going to the [official website](https://rclone.org/)
-- Upload the rclone.conf, in your private chat / channel**.
-- Reply the `GET_RCLONE_CONF_URI` Commandi, to the uploaded file.
-- RoBot will reply a monospaced text.
-- Add it to the `R_CLONE_CONF_URI` ENVironment VARiable.
 
 
 ## Issues or Feature Requests
