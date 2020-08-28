@@ -42,6 +42,7 @@ async def aria_start():
     # aria2_daemon_start_cmd.append(f"--dir={DOWNLOAD_LOCATION}")
     # TODO: this does not work, need to investigate this.
     # but for now, https://t.me/TrollVoiceBot?start=858
+    # maybe, :\ but https://t.me/c/1374712761/1142
     aria2_daemon_start_cmd.append("--enable-rpc")
     aria2_daemon_start_cmd.append("--follow-torrent=mem")
     aria2_daemon_start_cmd.append("--max-connection-per-server=10")
@@ -76,14 +77,14 @@ async def aria_start():
 
 def add_magnet(aria_instance, magnetic_link, c_file_name):
     options = None
-    # if c_file_name is not None:
-    #     options = {
-    #         "dir": c_file_name
-    #     }
+    if c_file_name is not None:
+        options = {
+            "dir": c_file_name
+        }
     try:
         download = aria_instance.add_magnet(
             magnetic_link,
-            options=options
+            options
         )
     except Exception as e:
         return False, "**FAILED** \n" + str(e) + " \nPlease do not send SLOW links. Read /help"
@@ -113,16 +114,16 @@ def add_torrent(aria_instance, torrent_file_path):
 
 def add_url(aria_instance, text_url, c_file_name):
     options = None
-    # if c_file_name is not None:
-    #     options = {
-    #         "dir": c_file_name
-    #     }
+    if c_file_name is not None:
+        options = {
+            "dir": c_file_name
+        }
     uris = [text_url]
     # Add URL Into Queue
     try:
         download = aria_instance.add_uris(
             uris,
-            options=options
+            options
         )
     except Exception as e:
         return False, "**FAILED** \n" + str(e) + " \nPlease do not send SLOW links. Read /help"
@@ -237,6 +238,12 @@ async def call_apropriate_function(
     await asyncio.sleep(1)
     file = aria_instance.get_download(err_message)
     to_upload_file = file.name
+    if not file.is_complete:
+        return False, (
+            "unable to download, "
+            "upload #stopped "
+            "\n\nmanually clear storage (/ upload 🤦‍♂️) using GNU/Linux commands"
+        )
     #
     if is_zip:
         # first check if current free space allows this
@@ -305,12 +312,10 @@ async def check_progress_for_dl(aria2, gid, event, previous_message):
                 msg += f"\nSpeed: {file.download_speed_string()} 🔽 / {file.upload_speed_string()} 🔼"
                 msg += f"\nProgress: {file.progress_string()}"
                 msg += f"\nTotal Size: {file.total_length_string()}"
-
-                if file.seeder is None :
-                   msg += f"\n<b>Connections:</b> {file.connections}"
-                else :
-                   msg += f"\n<b>Info:</b>[ P : {file.connections} || S : {file.num_seeders} ]"
-
+                msg += f"\n<b>Info:</b>| P: {file.connections} |"
+                if file.seeder is False:
+                    """https://t.me/c/1220993104/670177"""
+                    msg += f"| S: {file.num_seeders} |"
                 # msg += f"\nStatus: {file.status}"
                 msg += f"\nETA: {file.eta_string()}"
                 msg += f"\n<code>/cancel {gid}</code>"
@@ -323,23 +328,30 @@ async def check_progress_for_dl(aria2, gid, event, previous_message):
                 await event.edit(f"`{msg}`")
                 return False
             await asyncio.sleep(EDIT_SLEEP_TIME_OUT)
-            await check_progress_for_dl(aria2, gid, event, previous_message)
+            return await check_progress_for_dl(aria2, gid, event, previous_message)
         else:
             await event.edit(f"File Downloaded Successfully: <code>{file.name}</code>")
             return True
+    except aria2p.client.ClientException:
+        pass
+    except RecursionError:
+        file.remove(force=True)
+        await event.edit(
+            "Download Auto Canceled :\n\n"
+            "Your Torrent/Link is Dead.".format(
+                file.name
+            )
+        )
+        return False
     except Exception as e:
         LOGGER.info(str(e))
         if " not found" in str(e) or "'file'" in str(e):
             await event.edit("Download Canceled :\n<code>{}</code>".format(file.name))
             return False
-        elif " depth exceeded" in str(e):
-            file.remove(force=True)
-            await event.edit("Download Auto Canceled :\n<code>{}</code>\nYour Torrent/Link is Dead.".format(file.name))
-            return False
         else:
             LOGGER.info(str(e))
             await event.edit("<u>error</u> :\n<code>{}</code> \n\n#error".format(str(e)))
-            return
+            return False
 # https://github.com/jaskaranSM/UniBorg/blob/6d35cf452bce1204613929d4da7530058785b6b1/stdplugins/aria.py#L136-L164
 
 
