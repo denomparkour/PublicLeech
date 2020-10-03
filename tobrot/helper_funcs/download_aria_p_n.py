@@ -2,19 +2,14 @@
 # -*- coding: utf-8 -*-
 # (c) Shrimadhav U K
 
-# the logging things
-import logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logging.getLogger("pyrogram").setLevel(logging.WARNING)
-LOGGER = logging.getLogger(__name__)
-
 import aria2p
 import asyncio
 import configparser
 import os
+from pyrogram.errors import MessageNotModified
+from tobrot import (
+    LOGGER
+)
 from tobrot.helper_funcs.upload_to_tg import upload_to_tg
 from tobrot.helper_funcs.create_compressed_archive import create_archive
 
@@ -77,10 +72,10 @@ async def aria_start():
 
 def add_magnet(aria_instance, magnetic_link, c_file_name):
     options = None
-    if c_file_name is not None:
-        options = {
-            "dir": c_file_name
-        }
+    # if c_file_name is not None:
+    #     options = {
+    #         "dir": c_file_name
+    #     }
     try:
         download = aria_instance.add_magnet(
             magnetic_link,
@@ -114,10 +109,10 @@ def add_torrent(aria_instance, torrent_file_path):
 
 def add_url(aria_instance, text_url, c_file_name):
     options = None
-    if c_file_name is not None:
-        options = {
-            "dir": c_file_name
-        }
+    # if c_file_name is not None:
+    #     options = {
+    #         "dir": c_file_name
+    #     }
     uris = [text_url]
     # Add URL Into Queue
     try:
@@ -172,7 +167,7 @@ async def fake_etairporpa_call(
     await asyncio.sleep(1)
     file = aria_instance.get_download(err_message)
     to_upload_file = file.name
-    #
+    # -_-
     r_clone_conf_file = await get_r_clone_config(
         R_CLONE_CONF_URI,
         sent_message_to_update_tg_p._client
@@ -185,15 +180,18 @@ async def fake_etairporpa_call(
             required_remote = remote_names[r_clone_header_xedni]
         except IndexError:
             return False, "maybe a bug, but index seems not valid"
-        await copy_via_rclone(
+        remote_file_id = await copy_via_rclone(
             to_upload_file,
             required_remote,
             R_CLONE_DEST,  # rclone destination folder
             r_clone_conf_file
         )
+        # temporary hard coded id for Google Drive only. :\
+        # TODO
         await sent_message_to_update_tg_p.reply_text(
             "files might be uploaded in the desired remote "
-            "please check Logs for any erros"
+            "please check Logs for any errors"
+            f"\n\nhttps://drive.google.com/open?id={remote_file_id}"
         )
         return True, None
 
@@ -237,7 +235,11 @@ async def call_apropriate_function(
             return False, "can't get metadata \n\n#stopped"
     await asyncio.sleep(1)
     file = aria_instance.get_download(err_message)
-    to_upload_file = file.name
+    to_upload_file = file.name 
+    """os.path.join(
+        c_file_name,
+        file.name
+    )"""
     if not file.is_complete:
         return False, (
             "unable to download, "
@@ -328,17 +330,21 @@ async def check_progress_for_dl(aria2, gid, event, previous_message):
                 await event.edit(f"`{msg}`")
                 return False
             await asyncio.sleep(EDIT_SLEEP_TIME_OUT)
-            return await check_progress_for_dl(aria2, gid, event, previous_message)
+            return await check_progress_for_dl(
+                aria2, gid, event, previous_message
+            )
         else:
             await event.edit(f"File Downloaded Successfully: <code>{file.name}</code>")
             return True
     except aria2p.client.ClientException:
         pass
+    except MessageNotModified:
+        pass
     except RecursionError:
         file.remove(force=True)
         await event.edit(
             "Download Auto Canceled :\n\n"
-            "Your Torrent/Link is Dead.".format(
+            "Your Torrent/Link {} is Dead.".format(
                 file.name
             )
         )
@@ -346,7 +352,9 @@ async def check_progress_for_dl(aria2, gid, event, previous_message):
     except Exception as e:
         LOGGER.info(str(e))
         if " not found" in str(e) or "'file'" in str(e):
-            await event.edit("Download Canceled :\n<code>{}</code>".format(file.name))
+            await event.edit(
+                "Download Canceled :\n<code>{}</code>".format(file.name)
+            )
             return False
         else:
             LOGGER.info(str(e))
